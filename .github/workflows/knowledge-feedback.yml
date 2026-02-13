@@ -1,0 +1,38 @@
+name: Knowledge Feedback Loop
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  track-feedback:
+    if: github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Log Review Feedback
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          PR_NUM=${{ github.event.pull_request.number }}
+          REVIEWER=${{ github.event.review.user.login }}
+          BODY=$(echo '${{ github.event.review.body }}' | head -c 500)
+
+          cat >> docs/review-feedback-log.md << EOF
+
+          ### PR #${PR_NUM} — ${DATE}
+          - **Reviewer**: ${REVIEWER}
+          - **Feedback**: ${BODY}
+          - **Status**: Pending resolution
+          ---
+          EOF
+
+      - name: Commit Log
+        run: |
+          git config user.name "knowledge-bot"
+          git config user.email "bot@contentforge.dev"
+          git add docs/review-feedback-log.md
+          git diff --cached --quiet || git commit -m "docs: log PR review feedback (#${{ github.event.pull_request.number }})"
+          git push

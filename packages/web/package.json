@@ -1,0 +1,33 @@
+{
+  "name": "@content-forge/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scene-based multimodal video editor frontend (Vue 3 + Tailwind + Style L)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@content-forge/core": "workspace:*",
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.0",
+    "lucide-vue-next": "^0.344.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.0",
+    "vitest": "^1.6.0"
+  }
+}

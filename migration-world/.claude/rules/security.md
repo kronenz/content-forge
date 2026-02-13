@@ -1,0 +1,3 @@
+# security
+
+Rule template placeholder.

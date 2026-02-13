@@ -1,0 +1,358 @@
+{
+  "name": "ContentForge - Daily Content Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "node-trigger",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/materials/collect",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "node-collect",
+      "name": "Collect Materials",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/materials/score",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "materials",
+              "value": "={{$json.materials}}"
+            }
+          ]
+        }
+      },
+      "id": "node-score",
+      "name": "Score and Filter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/pipelines/assign",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "scoredMaterials",
+              "value": "={{$json.scoredMaterials}}"
+            }
+          ]
+        }
+      },
+      "id": "node-assign",
+      "name": "Assign Pipelines",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/pipelines/transform",
+        "method": "POST",
+        "options": {
+          "timeout": 120000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "assignments",
+              "value": "={{$json.assignments}}"
+            }
+          ]
+        }
+      },
+      "id": "node-transform",
+      "name": "Transform Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-review",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "node-review-webhook",
+      "name": "Human Review Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "webhookId": "content-review"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.decision}}",
+              "operation": "equals",
+              "value2": "approved"
+            }
+          ]
+        }
+      },
+      "id": "node-check-approval",
+      "name": "Check Approval",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/publish",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contentId",
+              "value": "={{$json.contentId}}"
+            },
+            {
+              "name": "channels",
+              "value": "={{$json.channels}}"
+            }
+          ]
+        }
+      },
+      "id": "node-publish",
+      "name": "Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1780, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/metrics/collect",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publicationIds",
+              "value": "={{$json.publicationIds}}"
+            }
+          ]
+        }
+      },
+      "id": "node-metrics",
+      "name": "Collect Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/content/archive",
+        "method": "POST",
+        "options": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contentId",
+              "value": "={{$json.contentId}}"
+            },
+            {
+              "name": "reason",
+              "value": "rejected"
+            }
+          ]
+        }
+      },
+      "id": "node-reject",
+      "name": "Archive Rejected",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1780, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "const error = $input.first().json;\nreturn [{\n  json: {\n    type: 'pipeline_error',\n    stage: error.stage || 'unknown',\n    message: error.message || 'An error occurred in the content pipeline',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 520]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "method": "POST",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "ContentForge Pipeline Error: {{$json.message}} at stage {{$json.stage}}"
+            }
+          ]
+        }
+      },
+      "id": "node-error-notify",
+      "name": "Notify Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 520]
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [{ "node": "Collect Materials", "type": "main", "index": 0 }]
+      ]
+    },
+    "Collect Materials": {
+      "main": [
+        [{ "node": "Score and Filter", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Score and Filter": {
+      "main": [
+        [{ "node": "Assign Pipelines", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Assign Pipelines": {
+      "main": [
+        [{ "node": "Transform Content", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Transform Content": {
+      "main": [
+        [{ "node": "Human Review Webhook", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Human Review Webhook": {
+      "main": [
+        [{ "node": "Check Approval", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Approval": {
+      "main": [
+        [{ "node": "Publish", "type": "main", "index": 0 }],
+        [{ "node": "Archive Rejected", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish": {
+      "main": [
+        [{ "node": "Collect Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [{ "node": "Notify Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "timezone": "Asia/Seoul"
+  },
+  "tags": [
+    { "name": "content-forge" },
+    { "name": "automation" },
+    { "name": "daily" }
+  ]
+}

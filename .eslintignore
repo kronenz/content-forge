@@ -1,0 +1,8 @@
+dist
+node_modules
+coverage
+.turbo
+*.cjs
+**/__tests__/**
+**/*.test.ts
+**/*.spec.ts

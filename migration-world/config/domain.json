@@ -1,0 +1,30 @@
+{
+  "project": {
+    "name": "your-project-name",
+    "domain": "replace-with-domain",
+    "objective": "What business outcome this automation platform drives"
+  },
+  "pipelineStages": [
+    "ingest",
+    "prioritize",
+    "transform",
+    "validate",
+    "deliver",
+    "measure",
+    "learn"
+  ],
+  "entityNames": {
+    "inputUnit": "work_item",
+    "outputUnit": "delivery_artifact",
+    "qualityGate": "policy_gate"
+  },
+  "adapters": {
+    "sources": ["replace-source-1", "replace-source-2"],
+    "destinations": ["replace-destination-1", "replace-destination-2"]
+  },
+  "governance": {
+    "requireHumanApproval": true,
+    "highRiskCategories": ["security", "legal", "compliance"],
+    "auditTrailRequired": true
+  }
+}

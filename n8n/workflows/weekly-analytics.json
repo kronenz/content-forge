@@ -1,0 +1,230 @@
+{
+  "name": "ContentForge - Weekly Analytics Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtDay": 1,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "node-trigger",
+      "name": "Monday 9am Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/metrics/weekly",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "node-collect-metrics",
+      "name": "Collect Week Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/analytics/weekly-loop",
+        "method": "POST",
+        "options": {
+          "timeout": 60000,
+          "retry": {
+            "maxRetries": 2,
+            "retryInterval": 10000
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "metrics",
+              "value": "={{$json.metrics}}"
+            },
+            {
+              "name": "period",
+              "value": "={{$json.period}}"
+            }
+          ]
+        }
+      },
+      "id": "node-weekly-loop",
+      "name": "Run Weekly Loop",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CONTENT_FORGE_API_URL}}/api/analytics/report",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CONTENT_FORGE_API_KEY}}"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "loopResult",
+              "value": "={{$json.loopResult}}"
+            },
+            {
+              "name": "metrics",
+              "value": "={{$json.metrics}}"
+            }
+          ]
+        }
+      },
+      "id": "node-generate-report",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "method": "POST",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "ContentForge Weekly Analytics Report\n\nPeriod: {{$json.report.period.start}} - {{$json.report.period.end}}\nTotal Views: {{$json.report.summary.totalViews}}\nTotal Engagement: {{$json.report.summary.totalEngagement}}\nTop Channel: {{$json.report.summary.topChannel}}\n\nRecommendations:\n{{$json.report.recommendations}}"
+            }
+          ]
+        }
+      },
+      "id": "node-notify-slack",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.CONTENT_FORGE_EMAIL_FROM}}",
+        "toEmail": "={{$env.CONTENT_FORGE_EMAIL_TO}}",
+        "subject": "ContentForge Weekly Report - {{$json.report.period.start}} to {{$json.report.period.end}}",
+        "text": "={{$json.report.summary}}",
+        "options": {}
+      },
+      "id": "node-send-email",
+      "name": "Send Email Report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "const error = $input.first().json;\nreturn [{\n  json: {\n    type: 'weekly_analytics_error',\n    message: error.message || 'Weekly analytics pipeline failed',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 520]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
+        "method": "POST",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "ContentForge Weekly Analytics Error: {{$json.message}}"
+            }
+          ]
+        }
+      },
+      "id": "node-error-notify",
+      "name": "Notify Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 520]
+    }
+  ],
+  "connections": {
+    "Monday 9am Trigger": {
+      "main": [
+        [{ "node": "Collect Week Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Collect Week Metrics": {
+      "main": [
+        [{ "node": "Run Weekly Loop", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run Weekly Loop": {
+      "main": [
+        [{ "node": "Generate Report", "type": "main", "index": 0 }],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          { "node": "Send Slack Notification", "type": "main", "index": 0 },
+          { "node": "Send Email Report", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Error Handler", "type": "main", "index": 0 }]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [{ "node": "Notify Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "timezone": "Asia/Seoul"
+  },
+  "tags": [
+    { "name": "content-forge" },
+    { "name": "analytics" },
+    { "name": "weekly" }
+  ]
+}

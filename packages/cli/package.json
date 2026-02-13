@@ -1,0 +1,29 @@
+{
+  "name": "@content-forge/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ContentForge CLI tool",
+  "type": "module",
+  "bin": {
+    "content-forge": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@content-forge/core": "workspace:*",
+    "@content-forge/collectors": "workspace:*",
+    "@content-forge/pipelines": "workspace:*",
+    "@content-forge/publishers": "workspace:*",
+    "@content-forge/agents": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.2",
+    "vitest": "^1.6.0"
+  }
+}

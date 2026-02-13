@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ContentForge System Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="app-bg"></div>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-mark"></div>
+          <div>
+            <p class="logo-title">ContentForge</p>
+            <p class="logo-sub">System Blueprint Demo</p>
+          </div>
+        </div>
+
+        <nav id="menu" class="menu">
+          <button class="menu-item is-active" data-screen="system-map">System Map</button>
+          <button class="menu-item" data-screen="packages">Package Topology</button>
+          <button class="menu-item" data-screen="operations">Agent Operations</button>
+          <button class="menu-item" data-screen="factory">Content Factory</button>
+          <button class="menu-item" data-screen="intervention">Intervention Desk</button>
+          <button class="menu-item" data-screen="video">Video Pipeline</button>
+          <button class="menu-item" data-screen="distribution">Distribution</button>
+          <button class="menu-item" data-screen="control-plane">Control Plane</button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <p id="env-chip">ENV: Demo Sandbox</p>
+          <p id="clock-chip"></p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h1 id="screen-title">System Map</h1>
+            <p id="screen-desc">수집부터 BML 피드백까지 전체 구조를 한 화면에</p>
+          </div>
+          <div class="topbar-actions">
+            <button id="go-control-plane" class="ghost-btn">Dependencies</button>
+            <button id="go-intervention" class="ghost-btn">Intervene</button>
+            <button class="primary-btn">Run End-to-End</button>
+          </div>
+        </header>
+
+        <section id="system-map" class="screen is-visible">
+          <div class="card">
+            <h2>End-to-End Flow</h2>
+            <div id="flow-strip" class="flow-strip"></div>
+            <div id="pipeline-legend" class="pipeline-legend"></div>
+            <div id="pipeline-lanes" class="pipeline-lanes"></div>
+            <div class="live-progress-wrap">
+              <div class="live-progress"><i id="global-progress"></i></div>
+              <span id="progress-text">0% complete</span>
+            </div>
+            <div class="counter-row">
+              <div class="counter-chip">Queue <strong id="counter-queue">0</strong></div>
+              <div class="counter-chip">Workers <strong id="counter-workers">0</strong></div>
+              <div class="counter-chip">Success <strong id="counter-success">0%</strong></div>
+            </div>
+          </div>
+          <div class="grid-2 mt-12">
+            <article class="card">
+              <h2>Runtime Snapshot</h2>
+              <ul id="runtime-snapshot" class="list"></ul>
+            </article>
+            <article class="card">
+              <h2>Architectural Invariants</h2>
+              <ul id="invariants-list" class="timeline"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="packages" class="screen">
+          <div class="card">
+            <h2>Monorepo Package Boundaries</h2>
+            <div id="package-grid" class="pkg-grid"></div>
+          </div>
+          <div class="card mt-12">
+            <h2>Dependency Rule View</h2>
+            <div id="dependency-lines" class="dependency-lines"></div>
+          </div>
+        </section>
+
+        <section id="operations" class="screen">
+          <div class="grid-3">
+            <article class="card">
+              <h2>Task Queue</h2>
+              <ul id="task-queue" class="timeline"></ul>
+            </article>
+            <article class="card">
+              <h2>Agent Health</h2>
+              <ul id="agent-health" class="list"></ul>
+            </article>
+            <article class="card">
+              <h2>Lock Monitor</h2>
+              <ul id="lock-monitor" class="timeline"></ul>
+            </article>
+          </div>
+          <article class="card mt-12">
+            <h2>Live Event Stream</h2>
+            <ul id="event-stream" class="event-stream"></ul>
+          </article>
+        </section>
+
+        <section id="factory" class="screen">
+          <div class="grid-2">
+            <article class="card">
+              <h2>Material Inbox</h2>
+              <ul id="material-inbox" class="timeline"></ul>
+            </article>
+            <article class="card">
+              <h2>Transformation Outputs</h2>
+              <ul id="transformation-outputs" class="list"></ul>
+            </article>
+          </div>
+          <article class="card mt-12">
+            <h2>Channel Specs Applied</h2>
+            <div id="channel-specs" class="chips"></div>
+          </article>
+        </section>
+
+        <section id="intervention" class="screen">
+          <div class="grid-3">
+            <article class="card">
+              <h2>Approval Queue</h2>
+              <ul id="approval-queue" class="timeline"></ul>
+            </article>
+            <article class="card">
+              <h2>Manual Routing Override</h2>
+              <form id="override-form" class="form-grid">
+                <label>Material ID
+                  <select name="materialId" id="override-material"></select>
+                </label>
+                <label>Force Pipeline
+                  <select name="pipeline" id="override-pipeline"></select>
+                </label>
+                <label>Priority
+                  <select name="priority">
+                    <option value="normal">normal</option>
+                    <option value="high">high</option>
+                    <option value="urgent">urgent</option>
+                  </select>
+                </label>
+                <button class="primary-btn" type="submit">Apply Override</button>
+              </form>
+            </article>
+            <article class="card">
+              <h2>Operational Actions</h2>
+              <div class="action-stack">
+                <button class="action-btn" id="btn-pause">Pause Active Pipeline</button>
+                <button class="action-btn" id="btn-retry">Retry Failed Tasks</button>
+                <button class="action-btn" id="btn-republish">Republish Latest Bundle</button>
+                <button class="action-btn" id="btn-drain">Drain Queue (Simulated)</button>
+              </div>
+            </article>
+          </div>
+
+          <article class="card mt-12">
+            <h2>Human-in-the-Loop Draft Editor</h2>
+            <div class="editor-grid">
+              <label>Selected Draft
+                <select id="draft-selector"></select>
+              </label>
+              <label>Channel
+                <input id="draft-channel" readonly />
+              </label>
+            </div>
+            <textarea id="draft-body" rows="7"></textarea>
+            <div class="draft-actions">
+              <button class="ghost-btn" id="draft-request-rewrite">Request AI Rewrite</button>
+              <button class="primary-btn" id="draft-save">Save & Approve</button>
+            </div>
+          </article>
+        </section>
+
+        <section id="video" class="screen">
+          <div class="grid-3">
+            <article class="card">
+              <h2>Script Scenes</h2>
+              <ol id="scene-list" class="scene-list"></ol>
+            </article>
+            <article class="card">
+              <h2>Render Preview</h2>
+              <div class="preview-canvas">
+                <div class="gradient-orb orb-a"></div>
+                <div class="gradient-orb orb-b"></div>
+                <p id="preview-label"></p>
+              </div>
+            </article>
+            <article class="card">
+              <h2>Scene Inspector</h2>
+              <div class="field"><label>Visual Source</label><span id="inspector-visual"></span></div>
+              <div class="field"><label>Presenter</label><span id="inspector-presenter"></span></div>
+              <div class="field"><label>TTS Segment</label><span id="inspector-tts"></span></div>
+              <div class="field"><label>Transition</label><span id="inspector-transition"></span></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="distribution" class="screen">
+          <div class="grid-2">
+            <article class="card">
+              <h2>16-Channel Status</h2>
+              <ul id="channel-status" class="list"></ul>
+            </article>
+            <article class="card">
+              <h2>Publish Calendar (Dummy)</h2>
+              <ul id="publish-calendar" class="timeline"></ul>
+            </article>
+          </div>
+          <article class="card mt-12">
+            <h2>BML Loop</h2>
+            <ul id="bml-loop" class="timeline"></ul>
+          </article>
+        </section>
+
+        <section id="control-plane" class="screen">
+          <div class="grid-2">
+            <article class="card">
+              <h2>API Dependencies</h2>
+              <form id="api-form" class="form-grid">
+                <label>Anthropic API Key<input name="anthropic" type="password" placeholder="sk-ant-..." /></label>
+                <label>OpenRouter API Key<input name="openrouter" type="password" placeholder="or-..." /></label>
+                <label>ElevenLabs API Key<input name="elevenlabs" type="password" placeholder="el-..." /></label>
+                <label>Supabase Service Key<input name="supabase" type="password" placeholder="sbp_..." /></label>
+                <div class="form-actions">
+                  <label class="inline"><input id="mask-toggle" type="checkbox" checked /> Mask Values</label>
+                  <button type="submit" class="primary-btn">Save Keys</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="card">
+              <h2>Social Accounts</h2>
+              <div id="account-list" class="stack"></div>
+            </article>
+          </div>
+
+          <article class="card mt-12">
+            <h2>Deployment & Governance</h2>
+            <form id="policy-form" class="form-grid">
+              <label class="inline"><input name="autoPublish" type="checkbox" /> Auto Publish</label>
+              <label class="inline"><input name="requireApproval" type="checkbox" /> Require Human Approval</label>
+              <label>Timezone
+                <select name="timezone">
+                  <option value="Asia/Seoul">Asia/Seoul</option>
+                  <option value="UTC">UTC</option>
+                  <option value="America/Los_Angeles">America/Los_Angeles</option>
+                </select>
+              </label>
+              <label>Publish Window
+                <select name="window">
+                  <option value="08:00-11:00">08:00-11:00</option>
+                  <option value="11:00-14:00">11:00-14:00</option>
+                  <option value="18:00-22:00">18:00-22:00</option>
+                </select>
+              </label>
+              <label>Retry Count<input name="retryCount" type="number" min="0" max="10" /></label>
+              <button type="submit" class="primary-btn">Save Policy</button>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast">Saved</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

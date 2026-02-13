@@ -1,0 +1,30 @@
+CLAUDE.local.md
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+*.tsbuildinfo
+.turbo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OMC state (session-scoped)
+.omc/
+
+# OS files
+.DS_Store
+Thumbs.db

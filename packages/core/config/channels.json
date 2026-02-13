@@ -1,0 +1,23 @@
+{
+  "canonical": [
+    "medium", "linkedin", "x-thread", "threads", "brunch", "newsletter",
+    "blog", "kakao", "youtube", "shorts", "reels", "tiktok",
+    "ig-carousel", "ig-single", "ig-story", "webtoon"
+  ],
+  "legacyAlias": {
+    "x": "x-thread",
+    "ig_carousel": "ig-carousel",
+    "ig_single": "ig-single",
+    "ig_story": "ig-story",
+    "instagram-carousel": "ig-carousel",
+    "instagram-single": "ig-single",
+    "instagram-story": "ig-story",
+    "twitter": "x-thread"
+  },
+  "dbMapping": {
+    "x-thread": "x_thread",
+    "ig-carousel": "ig_carousel",
+    "ig-single": "ig_single",
+    "ig-story": "ig_story"
+  }
+}
