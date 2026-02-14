@@ -126,7 +126,7 @@ export class MaterialService {
     };
 
     // Score materials
-    const scoreResult = await scoreWithCriteria(materials, criteria);
+    const scoreResult = scoreWithCriteria(materials, criteria);
     if (!scoreResult.ok) {
       return Err({ code: 'SCORING_FAILED', message: scoreResult.error.message });
     }

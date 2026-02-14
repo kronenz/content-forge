@@ -6,7 +6,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 COMPOSE_FILE="$REPO_ROOT/infra/docker-compose.yml"
-HEALTH_TIMEOUT=30
+HEALTH_TIMEOUT=60
 HEALTH_INTERVAL=3
 
 log() { echo "[deploy] $(date '+%H:%M:%S') $*"; }

@@ -1,6 +1,16 @@
 -- ContentForge Initial Schema Migration
 -- Creates core tables for materials, contents, tasks, publications, and metrics
 
+-- Create n8n database if not exists
+SELECT 'CREATE DATABASE n8n' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'n8n')\gexec
+
+-- Ensure uuid-ossp extension can be created (supabase image requires explicit role handling)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'supabase_admin') THEN
+    EXECUTE 'CREATE ROLE supabase_admin WITH LOGIN SUPERUSER PASSWORD ''postgres''';
+  END IF;
+END $$;
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

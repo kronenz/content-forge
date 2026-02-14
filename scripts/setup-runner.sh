@@ -58,7 +58,7 @@ REG_TOKEN=$(curl -fsSL \
   -H "Authorization: token ${GITHUB_TOKEN}" \
   -H "Accept: application/vnd.github+json" \
   "https://api.github.com/repos/${REPO}/actions/runners/registration-token" \
-  | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+  | grep -o '"token" *: *"[^"]*"' | cut -d'"' -f4)
 
 [ -n "$REG_TOKEN" ] || err "Failed to get registration token"
 

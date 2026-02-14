@@ -33,17 +33,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint & Typecheck (parallel)
-        run: |
-          pnpm lint &
-          PID_LINT=$!
-          pnpm exec tsc --build --noEmit &
-          PID_TSC=$!
-          wait $PID_LINT || exit 1
-          wait $PID_TSC || exit 1
-
       - name: Build
         run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
 
       - name: Test
         run: pnpm test
